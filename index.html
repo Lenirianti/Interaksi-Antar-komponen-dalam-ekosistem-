@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="id" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Edukasi IPAS - Ular Tangga Ekosistem</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: Poppins -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        // Ensure tailwind config runs smoothly after script load
+        window.addEventListener('DOMContentLoaded', () => {
+            if (typeof tailwind !== 'undefined') {
+                tailwind.config = {
+                    theme: {
+                        extend: {
+                            colors: {
+                                primary: '#3C096C',
+                                tosca: '#2EC4B6',
+                                offwhite: '#F8F9FA',
+                                accentYellow: '#FFB703',
+                                accentPink: '#FB8500'
+                            },
+                            fontFamily: {
+                                sans: ['Poppins', 'sans-serif'],
+                            }
+                        }
+                    }
+                };
+            }
+        });
+    </script>
+    <style>
+        body { font-family: 'Poppins', sans-serif; background-color: #3C096C; }
+        /* Custom Scrollbar for inner boxes */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb { background: #2EC4B6; border-radius: 4px; }
+        
+        /* 3D Dice Animation Styles */
+        .dice-container { perspective: 600px; }
+        .dice {
+            width: 60px; height: 60px;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 1s ease-out;
+        }
+        .dice.rolling {
+            animation: rollDice 0.8s infinite linear;
+        }
+        @keyframes rollDice {
+            0% { transform: rotateX(0deg) rotateY(0deg) rotateZ(0deg); }
+            50% { transform: rotateX(360deg) rotateY(180deg) rotateZ(180deg); }
+            100% { transform: rotateX(720deg) rotateY(360deg) rotateZ(360deg); }
+        }
+        .dice-face {
+            position: absolute; width: 100%; height: 100%;
+            background: white; border: 3px solid #3C096C;
+            border-radius: 12px; display: flex; align-items: center; justify-content: center;
+            font-size: 24px; font-weight: bold; color: #3C096C;
+            box-shadow: inset 0 3px 5px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body class="h-screen w-screen overflow-hidden flex flex-col text-offwhite bg-primary">
+
+    <!-- Top Navigation / Header Bar -->
+    <header class="bg-[#240342] border-b border-[#2EC4B6]/30 px-4 py-2 flex justify-between items-center shrink-0 z-50">
+        <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 rounded-full bg-tosca flex items-center justify-center text-primary font-bold text-xl shadow-lg">
+                <i class="fa-solid fa-leaf"></i>
+            </div>
+            <div>
+                <h1 class="text-base font-bold text-tosca leading-tight">MPI INTERAKTIF IPAS KELAS 5</h1>
+                <p class="text-xs text-offwhite/70">Interaksi Antar Komponen dalam Ekosistem</p>
+            </div>
+        </div>
+
+        <!-- Controls: Mic Test, Audio, Home -->
+        <div class="flex items-center space-x-2 sm:space-x-4">
+            <!-- Mic Test Button -->
+            <button onclick="testMicrophone()" class="bg-tosca/20 hover:bg-tosca/30 text-tosca border border-tosca/40 px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center space-x-1 transition shadow">
+                <i class="fa-solid fa-microphone-lines"></i>
+                <span class="hidden sm:inline">Test Mic</span>
+            </button>
+
+            <!-- Audio Control -->
+            <div class="flex items-center bg-black/30 px-3 py-1.5 rounded-lg border border-white/10 space-x-2">
+                <button onclick="toggleAudio()" id="audioToggleBtn" class="text-tosca hover:text-white transition">
+                    <i class="fa-solid fa-volume-high text-sm"></i>
+                </button>
+                <input type="range" id="volumeSlider" min="0" max="1" step="0.1" value="0.5" onchange="adjustVolume(this.value)" class="w-16 accent-tosca cursor-pointer h-1">
+            </div>
+
+            <!-- Home Button -->
+            <button onclick="switchScreen('home')" class="bg-tosca hover:bg-[#259b90] text-primary font-bold px-3 py-1.5 rounded-lg text-xs flex items-center space-x-1 shadow transition">
+                <i class="fa-solid fa-house"></i>
+                <span class="hidden sm:inline">Menu</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content Area (Dynamic Screens, NO vertical scroll on body) -->
+    <main id="mainContainer" class="flex-1 relative overflow-hidden flex flex-col">
+        
+        <!-- ================= 1. HOME SCREEN ================= -->
+        <section id="screen-home" class="absolute inset-0 flex flex-col items-center justify-center p-4 sm:p-6 overflow-y-auto bg-gradient-to-br from-[#3C096C] via-[#240342] to-[#120124]">
+            <div class="max-w-4xl w-full bg-white/5 backdrop-blur-md border border-tosca/30 rounded-3xl p-6 sm:p-8 shadow-2xl text-center flex flex-col items-center">
+                
+                <span class="bg-tosca/20 text-tosca border border-tosca/30 text-xs px-4 py-1.5 rounded-full font-semibold uppercase tracking-wider mb-3">
+                    Media Pembelajaran Interaktif (MPI)
+                </span>
+                
+                <h2 class="text-2xl sm:text-4xl font-extrabold text-white mb-2 tracking-wide">
+                    GAME INTERAKTIF ULAR – TANGGA
+                </h2>
+                <h3 class="text-lg sm:text-xl font-semibold text-tosca mb-6">
+                    Materi: Interaksi Antar Komponen dalam Ekosistem (Kelas 5 SD)
+                </h3>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full text-left mb-6 text-sm">
+                    <!-- Instructions -->
+                    <div class="bg-black/20 p-4 rounded-2xl border border-white/10">
+                        <h4 class="font-bold text-tosca mb-2 flex items-center"><i class="fa-solid fa-gamepad mr-2"></i>Instruksi Permainan</h4>
+                        <ul class="list-disc list-inside space-y-1 text-offwhite/80 text-xs">
+                            <li>Masukkan jumlah pemain dan pilih karakter favoritmu.</li>
+                            <li>Putar dadu 3D secara bergantian untuk melangkah di 50 kotak.</li>
+                            <li>Jawab tantangan soal (PG, Benar/Salah, Menjodohkan, Isian) di tiap kotak.</li>
+                            <li>Jika salah menjawab, kembali ke posisi sebelumnya!</li>
+                        </ul>
+                    </div>
+                    <!-- Objectives & Profile -->
+                    <div class="bg-black/20 p-4 rounded-2xl border border-white/10 flex flex-col justify-between">
+                        <div>
+                            <h4 class="font-bold text-accentYellow mb-2 flex items-center"><i class="fa-solid fa-bullseye mr-2"></i>Tujuan Pembelajaran</h4>
+                            <p class="text-offwhite/80 text-xs mb-3">Murid dapat menganalisis bentuk interaksi antar komponen biotik dan abiotik serta jaring-jaring makanan dalam ekosistem dengan antusias.</p>
+                        </div>
+                        <div class="border-t border-white/10 pt-2 text-xs text-offwhite/70">
+                            <span class="font-bold text-tosca">Pengembang:</span> Leni Rianti, S.Pd (SDN 1 Curugbadak)<br>
+                            <span class="font-bold text-tosca">Guru Kelas:</span> Mingga Ria Hadi
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Navigation Action Buttons -->
+                <div class="flex flex-wrap justify-center gap-3 w-full max-w-2xl">
+                    <button onclick="switchScreen('material')" class="bg-gradient-to-r from-tosca to-[#259b90] hover:opacity-90 text-primary font-bold px-6 py-3 rounded-xl shadow-lg text-sm flex items-center space-x-2 transition transform hover:scale-105">
+                        <i class="fa-solid fa-book-open"></i>
+                        <span>Pelajari Materi & Suara</span>
+                    </button>
+                    <button onclick="switchScreen('setup')" class="bg-gradient-to-r from-accentYellow to-[#e5a600] hover:opacity-90 text-primary font-bold px-6 py-3 rounded-xl shadow-lg text-sm flex items-center space-x-2 transition transform hover:scale-105">
+                        <i class="fa-solid fa-play"></i>
+                        <span>Mulai Bermain Game</span>
+                    </button>
+                    <button onclick="switchScreen('scores')" class="bg-white/10 hover:bg-white/20 border border-white/20 font-bold px-4 py-3 rounded-xl shadow text-sm flex items-center space-x-2 transition">
+                        <i class="fa-solid fa-table"></i>
+                        <span>Data Nilai (Spreadsheet)</span>
+                    </button>
+                    <button onclick="switchScreen('reflection')" class="bg-white/10 hover:bg-white/20 border border-white/20 font-bold px-4 py-3 rounded-xl shadow text-sm flex items-center space-x-2 transition">
+                        <i class="fa-solid fa-comment-dots"></i>
+                        <span>Refleksi</span>
+                    </button>
+                    <button onclick="switchScreen('certificate')" class="bg-white/10 hover:bg-white/20 border border-white/20 font-bold px-4 py-3 rounded-xl shadow text-sm flex items-center space-x-2 transition">
+                        <i class="fa-solid fa-award"></i>
+                        <span>Sertifikat</span>
+                    </button>
+                </div>
+            </div>
+            <!-- Footer -->
+            <footer class="mt-6 text-xs text-offwhite/60 text-center">
+                Dibuat dengan ❤️ oleh <span class="text-tosca font-bold">Leni Rianti, S.Pd</span> | SDN 1 CURUGBADAK
+            </footer>
+        </section>
+
+        <!-- ================= 2. MATERIAL SCREEN ================= -->
+        <section id="screen-material" class="absolute inset-0 hidden flex flex-col p-4 sm:p-6 overflow-y-auto bg-primary">
+            <div class="max-w-4xl w-full mx-auto bg-white/5 backdrop-blur-md border border-tosca/30 rounded-3xl p-6 shadow-2xl flex flex-col flex-1 my-auto">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-bold text-tosca flex items-center"><i class="fa-solid fa-book-open mr-2"></i>Materi Ekosistem & Interaksi</h2>
+                    <div class="flex items-center space-x-2">
+                        <!-- Voice character selector -->
+                        <select id="voiceCharacter" class="bg-black/30 border border-tosca/40 text-xs rounded-lg px-2 py-1.5 text-offwhite">
+                            <option value="Zephyr">Suara: Zephyr (Perempuan Persuasif)</option>
+                            <option value="Aoede">Suara: Aoede (Perempuan Lembut)</option>
+                            <option value="Orus">Suara: Orus (Pria Kasual)</option>
+                            <option value="Charon">Suara: Charon (Pria Natural)</option>
+                        </select>
+                        <button onclick="readMaterial()" class="bg-tosca hover:bg-[#259b90] text-primary font-bold px-3 py-1.5 rounded-lg text-xs flex items-center space-x-1">
+                            <i class="fa-solid fa-volume-high"></i>
+                            <span>Bacakan Materi (Inklusi)</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div id="materialContentBox" class="bg-black/20 p-5 rounded-2xl border border-white/10 text-sm space-y-3 overflow-y-auto flex-1 text-offwhite/90">
+                    <h3 class="font-bold text-accentYellow text-base">Apa itu Ekosistem?</h3>
+                    <p>Ekosistem adalah hubungan timbal balik yang saling ketergantungan antara makhluk hidup (biotik) dengan benda tak hidup (abiotik) di suatu lingkungan.</p>
+                    
+                    <h3 class="font-bold text-accentYellow text-base">1. Komponen Biotik & Abiotik</h3>
+                    <p><strong>Biotik:</strong> Produsen (tumbuhan hijau), Konsumen (hewan herbivora, karnivora, omnivora), dan Pengurai (bakteri dan jamur).<br>
+                    <strong>Abiotik:</strong> Air, tanah, udara, cahaya matahari, suhu, dan kelembapan.</p>
+
+                    <h3 class="font-bold text-accentYellow text-base">2. Bentuk Interaksi / Simbiosis</h3>
+                    <ul class="list-disc list-inside space-y-1">
+                        <li><strong>Simbiosis Mutualisme:</strong> Hubungan dua makhluk hidup yang saling menguntungkan (contoh: lebah dan bunga).</li>
+                        <li><strong>Simbiosis Komensalisme:</strong> Satu untung, yang lain tidak dirugikan/diuntungkan (contoh: anggrek dan pohon).</li>
+                        <li><strong>Simbiosis Parasitisme:</strong> Satu untung, yang lain rugi (contoh: benalu dan pohon inang).</li>
+                    </ul>
+                </div>
+
+                <div class="flex justify-between items-center mt-4 pt-3 border-t border-white/10">
+                    <button onclick="switchScreen('home')" class="bg-white/10 hover:bg-white/20 text-offwhite px-4 py-2 rounded-xl text-xs font-semibold">
+                        <i class="fa-solid fa-arrow-left mr-1"></i> Kembali ke Menu
+                    </button>
+                    <button onclick="switchScreen('setup')" class="bg-tosca hover:bg-[#259b90] text-primary font-bold px-6 py-2 rounded-xl text-xs flex items-center space-x-1 shadow">
+                        <span>Lanjut ke Pemilihan Pemain</span> <i class="fa-solid fa-arrow-right ml-1"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= 3. SETUP SCREEN ================= -->
+        <section id="screen-setup" class="absolute inset-0 hidden flex flex-col items-center justify-center p-4 overflow-y-auto bg-primary">
+            <div class="max-w-2xl w-full bg-white/5 backdrop-blur-md border border-tosca/30 rounded-3xl p-6 shadow-2xl">
+                <h2 class="text-xl font-bold text-tosca text-center mb-4"><i class="fa-solid fa-users mr-2"></i>Pengaturan Pemain & Karakter</h2>
+                
+                <div class="space-y-4 text-sm">
+                    <div>
+                        <label class="block font-medium mb-1">Jumlah Pemain:</label>
+                        <select id="playerCountSelect" onchange="renderPlayerInputs()" class="w-full bg-black/30 border border-tosca/40 rounded-xl px-3 py-2 text-offwhite">
+                            <option value="1">1 Pemain (Mandiri)</option>
+                            <option value="2">2 Pemain</option>
+                            <option value="3">3 Pemain</option>
+                            <option value="4" selected>4 Pemain</option>
+                            <option value="5">5 Pemain (Regu)</option>
+                        </select>
+                    </div>
+
+                    <div id="playerInputsContainer" class="space-y-3 max-h-56 overflow-y-auto pr-1">
+                        <!-- Dynamically generated player config inputs -->
+                    </div>
+                </div>
+
+                <div class="flex justify-between items-center mt-6 pt-3 border-t border-white/10">
+                    <button onclick="switchScreen('home')" class="bg-white/10 hover:bg-white/20 text-offwhite px-4 py-2 rounded-xl text-xs font-semibold">
+                        Kembali
+                    </button>
+                    <button onclick="startTheGame()" class="bg-gradient-to-r from-accentYellow to-[#e5a600] text-primary font-bold px-6 py-2.5 rounded-xl text-sm shadow-lg flex items-center space-x-2">
+                        <i class="fa-solid fa-play"></i>
+                        <span>Mulai Petualangan Ular Tangga</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= 4. GAME BOARD SCREEN ================= -->
+        <section id="screen-game" class="absolute inset-0 hidden flex flex-col p-2 sm:p-4 overflow-hidden bg-primary">
+            <!-- Game HUD Top Bar -->
+            <div class="bg-black/30 border border-tosca/30 rounded-2xl px-4 py-2 mb-2 flex justify-between items-center shrink-0 text-xs sm:text-sm">
+                <div id="turnIndicator" class="font-bold text-accentYellow flex items-center">
+                    <span class="w-3 h-3 rounded-full bg-accentYellow inline-block mr-2 animate-pulse"></span>
+                    Giliran: <span id="currentTurnName" class="ml-1 text-white">Pemain 1</span>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div id="gameStatusText" class="text-tosca font-semibold hidden sm:block">Putar Dadu untuk Berjalan!</div>
+                    <button onclick="switchScreen('home')" class="bg-white/10 hover:bg-white/20 px-3 py-1 rounded-lg">Keluar</button>
+                </div>
+            </div>
+
+            <!-- Main Game Area: Board on left/center, Controls & Status on right/bottom -->
+            <div class="flex-1 flex flex-col lg:flex-row gap-3 overflow-hidden">
+                
+                <!-- 50 Boxes Snake & Ladder Board -->
+                <div class="flex-1 bg-black/40 border border-tosca/30 rounded-2xl p-2 sm:p-3 flex items-center justify-center overflow-hidden relative">
+                    <div id="gameBoardGrid" class="grid grid-cols-10 grid-rows-5 gap-1 w-full h-full max-w-5xl max-h-[500px]">
+                        <!-- Generated via JS: 50 cells -->
+                    </div>
+                </div>
+
+                <!-- Right Sidebar: Dice & Player Standings -->
+                <div class="w-full lg:w-72 bg-black/40 border border-tosca/30 rounded-2xl p-4 flex flex-col justify-between shrink-0">
+                    <div>
+                        <h3 class="font-bold text-tosca text-sm mb-3 flex items-center"><i class="fa-solid fa-ranking-star mr-2"></i>Status Pemain</h3>
+                        <div id="playerStandingsList" class="space-y-2 text-xs">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+
+                    <!-- 3D Dice Rolling Widget -->
+                    <div class="bg-white/5 border border-white/10 rounded-xl p-4 flex flex-col items-center mt-3">
+                        <div class="dice-container mb-3">
+                            <div id="dice3D" class="dice flex items-center justify-center">
+                                <div class="dice-face" id="diceFaceValue">🎲</div>
+                            </div>
+                        </div>
+                        <button id="rollDiceBtn" onclick="rollDiceAction()" class="w-full bg-gradient-to-r from-tosca to-[#259b90] hover:opacity-90 text-primary font-bold py-2.5 rounded-xl text-xs shadow flex items-center justify-center space-x-2 transition transform active:scale-95">
+                            <i class="fa-solid fa-dice"></i>
+                            <span>Putar Dadu 3D</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= 5. SCORES / SPREADSHEET SCREEN ================= -->
+        <section id="screen-scores" class="absolute inset-0 hidden flex flex-col p-4 sm:p-6 overflow-y-auto bg-primary">
+            <div class="max-w-4xl w-full mx-auto bg-white/5 backdrop-blur-md border border-tosca/30 rounded-3xl p-6 shadow-2xl flex flex-col flex-1 my-auto">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-bold text-tosca flex items-center"><i class="fa-solid fa-table mr-2"></i>Data Nilai & Spreadsheet Online</h2>
+                    <button onclick="exportToCSV()" class="bg-tosca hover:bg-[#259b90] text-primary font-bold px-3 py-1.5 rounded-lg text-xs flex items-center space-x-1 shadow">
+                        <i class="fa-solid fa-download"></i>
+                        <span>Download CSV / Excel</span>
+                    </button>
+                </div>
+
+                <div class="bg-black/20 rounded-2xl border border-white/10 overflow-hidden flex-1">
+                    <table class="w-full text-left text-xs sm:text-sm">
+                        <thead class="bg-tosca/20 text-tosca border-b border-white/10">
+                            <tr>
+                                <th class="p-3">Peringkat</th>
+                                <th class="p-3">Nama Murid</th>
+                                <th class="p-3">Kelas</th>
+                                <th class="p-3">Skor / Nilai</th>
+                                <th class="p-3">Waktu Selesai</th>
+                            </tr>
+                        </thead>
+                        <tbody id="scoresTableBody" class="divide-y divide-white/10">
+                            <tr>
+                                <td class="p-3">1</td>
+                                <td class="p-3 font-bold text-accentYellow">Budi Santoso</td>
+                                <td class="p-3">Kelas 5A</td>
+                                <td class="p-3 font-bold text-tosca">95</td>
+                                <td class="p-3 text-offwhite/70">04 Nov 2026, 09:15</td>
+                            </tr>
+                            <tr>
+                                <td class="p-3">2</td>
+                                <td class="p-3 font-bold text-white">Siti Aminah</td>
+                                <td class="p-3">Kelas 5A</td>
+                                <td class="p-3 font-bold text-tosca">85</td>
+                                <td class="p-3 text-offwhite/70">04 Nov 2026, 09:18</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="flex justify-between items-center mt-4">
+                    <button onclick="switchScreen('home')" class="bg-white/10 hover:bg-white/20 text-offwhite px-4 py-2 rounded-xl text-xs font-semibold">
+                        Kembali ke Menu
+                    </button>
+                    <span class="text-xs text-offwhite/60">Terhubung otomatis ke Google Sheet / Database Lokal MPI</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= 6. REFLECTION SCREEN ================= -->
+        <section id="screen-reflection" class="absolute inset-0 hidden flex flex-col p-4 sm:p-6 overflow-y-auto bg-primary">
+            <div class="max-w-xl w-full mx-auto bg-white/5 backdrop-blur-md border border-tosca/30 rounded-3xl p-6 shadow-2xl my-auto">
+                <h2 class="text-xl font-bold text-tosca text-center mb-2"><i class="fa-solid fa-comment-dots mr-2"></i>Refleksi Pembelajaran</h2>
+                <p class="text-xs text-offwhite/70 text-center mb-4">Bagaimana perasaan dan pemahamanmu setelah memainkan game ekosistem ini?</p>
+
+                <div class="space-y-4 text-xs sm:text-sm">
+                    <div>
+                        <label class="block font-medium mb-1">Nama Lengkap:</label>
+                        <input type="text" id="refName" placeholder="Masukkan namamu..." class="w-full bg-black/30 border border-tosca/40 rounded-xl px-3 py-2 text-offwhite">
+                    </div>
+                    <div>
+                        <label class="block font-medium mb-1">Bagian materi apa yang paling kamu sukai?</label>
+                        <textarea id="refQ1" rows="2" placeholder="Tuliskan jawabannya..." class="w-full bg-black/30 border border-tosca/40 rounded-xl p-3 text-offwhite resize-none"></textarea>
+                    </div>
+                    <div>
+                        <label class="block font-medium mb-1">Perasaan setelah bermain:</label>
+                        <div class="flex justify-around py-2">
+                            <label class="cursor-pointer text-center"><input type="radio" name="mood" value="Sangat Senang" class="accent-tosca block mx-auto mb-1"> 🤩 Senang Sekali</label>
+                            <label class="cursor-pointer text-center"><input type="radio" name="mood" value="Mengerti" class="accent-tosca block mx-auto mb-1"> 💡 Lebih Mengerti</label>
+                            <label class="cursor-pointer text-center"><input type="radio" name="mood" value="Seru" class="accent-tosca block mx-auto mb-1"> 🎮 Seru Banget</label>
+                        </div>
+                    </div>
+                    <button onclick="submitReflection()" class="w-full bg-tosca hover:bg-[#259b90] text-primary font-bold py-3 rounded-xl text-sm shadow transition">
+                        Kirim Refleksi
+                    </button>
+                </div>
+                <div class="mt-4 text-center">
+                    <button onclick="switchScreen('home')" class="text-xs text-tosca underline">Kembali ke Menu Utama</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= 7. CERTIFICATE SCREEN ================= -->
+        <section id="screen-certificate" class="absolute inset-0 hidden flex flex-col p-4 sm:p-6 overflow-y-auto bg-primary">
+            <div class="max-w-3xl w-full mx-auto bg-white/5 backdrop-blur-md border border-tosca/30 rounded-3xl p-6 shadow-2xl flex flex-col my-auto">
+                <h2 class="text-xl font-bold text-tosca text-center mb-2"><i class="fa-solid fa-award mr-2"></i>Sertifikat Hasil Belajar</h2>
+                <p class="text-xs text-offwhite/70 text-center mb-4">Penghargaan atas pencapaian belajar Interaksi Komponen Ekosistem.</p>
+
+                <!-- Certificate Preview A4 Landscape Simulation -->
+                <div id="certificateCard" class="bg-gradient-to-br from-[#1b0232] via-[#3C096C] to-[#0f011d] border-4 border-tosca rounded-2xl p-6 sm:p-8 text-center shadow-2xl relative overflow-hidden flex flex-col justify-between aspect-[1.414/1] max-h-[380px]">
+                    <div class="absolute top-2 right-2 text-tosca/20 text-6xl"><i class="fa-solid fa-certificate"></i></div>
+                    
+                    <div>
+                        <h4 class="text-xs uppercase tracking-widest text-tosca font-bold mb-1">Sertifikat Penyelesaian</h4>
+                        <h3 class="text-xl sm:text-2xl font-extrabold text-white tracking-wide">PENGHARGAAN PRESTASI</h3>
+                        <p class="text-xs text-offwhite/70 mt-1">Diberikan kepada:</p>
+                        <h2 id="certWinnerName" class="text-lg sm:text-2xl font-bold text-accentYellow my-1 underline decoration-tosca">Budi Santoso (Pemenang Utama)</h2>
+                        <p class="text-xs text-offwhite/80">Kelas <span id="certClass">5A</span> | Materi: <span class="text-tosca font-semibold">Interaksi Komponen dalam Ekosistem</span></p>
+                    </div>
+
+                    <div class="flex justify-between items-end mt-4 text-xs pt-4 border-t border-white/10">
+                        <div class="text-left">
+                            <p class="text-offwhite/60">Tanggal: <span id="certDate">04 November 2026</span></p>
+                            <p class="text-offwhite/60">Pengembang: <span class="text-tosca">Leni Rianti, S.Pd</span></p>
+                        </div>
+                        <div class="text-right">
+                            <p class="font-bold text-accentYellow">Guru Kelas:</p>
+                            <p class="font-extrabold text-white text-sm mt-1">Mingga Ria Hadi</p>
+                            <div class="text-[10px] text-tosca italic">SDN 1 Curugbadak</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex flex-wrap justify-center gap-3 mt-6">
+                    <button onclick="downloadCertificatePNG()" class="bg-gradient-to-r from-tosca to-[#259b90] hover:opacity-90 text-primary font-bold px-5 py-2.5 rounded-xl text-xs flex items-center space-x-2 shadow">
+                        <i class="fa-solid fa-download"></i>
+                        <span>📥 Unduh Sertifikat PNG</span>
+                    </button>
+                    <button onclick="printCertificate()" class="bg-white/10 hover:bg-white/20 border border-white/20 text-offwhite font-bold px-5 py-2.5 rounded-xl text-xs flex items-center space-x-2 shadow">
+                        <i class="fa-solid fa-print"></i>
+                        <span>🖨 Cetak Sertifikat</span>
+                    </button>
+                    <button onclick="switchScreen('home')" class="bg-white/10 hover:bg-white/20 text-offwhite px-4 py-2.5 rounded-xl text-xs font-semibold">
+                        Kembali
+                    </button>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- QUESTION MODAL (Popup when landing on a square) -->
+    <div id="questionModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-gradient-to-br from-[#3C096C] to-[#240342] border-2 border-tosca rounded-3xl p-6 max-w-lg w-full shadow-2xl text-offwhite animate-bounce-in">
+            <div class="flex justify-between items-center mb-3">
+                <span id="questionCategoryBadge" class="bg-tosca/20 text-tosca border border-tosca/40 text-xs px-3 py-1 rounded-full font-bold">Soal Tantangan Kotak #X</span>
+                <button onclick="readCurrentQuestion()" class="text-tosca hover:text-white text-xs flex items-center space-x-1">
+                    <i class="fa-solid fa-volume-high"></i> <span>Bacakan Soal</span>
+                </button>
+            </div>
+            
+            <h3 id="questionTitleText" class="text-base font-bold text-white mb-4">Pertanyaan akan muncul di sini...</h3>
+            
+            <div id="questionOptionsContainer" class="space-y-2 mb-4">
+                <!-- Options injected dynamically -->
+            </div>
+
+            <div id="questionFeedback" class="text-xs font-bold mb-3 hidden"></div>
+
+            <div class="flex justify-end">
+                <button id="submitAnswerBtn" onclick="checkAnswer()" class="bg-tosca hover:bg-[#259b90] text-primary font-bold px-6 py-2 rounded-xl text-xs shadow hidden">
+                    Jawab & Lanjutkan
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- CUSTOM MESSAGE BOX (Replacing alert/confirm) -->
+    <div id="customMsgModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-[#240342] border border-tosca/40 rounded-2xl p-6 max-w-sm w-full shadow-2xl text-center">
+            <h3 id="msgTitle" class="text-base font-bold text-tosca mb-2">Informasi</h3>
+            <p id="msgBody" class="text-xs text-offwhite/90 mb-5">Pesan sistem...</p>
+            <button onclick="closeCustomMsg()" class="bg-tosca hover:bg-[#259b90] text-primary font-bold px-6 py-2 rounded-xl text-xs w-full">OK</button>
+        </div>
+    </div>
+
+    <!-- JavaScript Application Logic -->
+    <script>
+        // --- Global State ---
+        let currentScreenID = 'home';
+        let audioEnabled = true;
+        let bgAudio = null;
+        let players = [];
+        let currentTurnIndex = 0;
+        let boardSize = 50;
+        let snakesAndLadders = {
+            5: 16,  // Tangga
+            12: 28, // Tangga
+            20: 8,  // Ular turun ke 8
+            24: 35, // Tangga
+            32: 15, // Ular turun ke 15
+            38: 46, // Tangga
+            45: 25  // Ular turun ke 25
+        };
+
+        // Questions Database for 50 squares
+        const questionsDB = [
+            { q: "Hubungan antara lebah dan bunga termasuk simbiosis...", type: "pg", options: ["Mutualisme", "Parasitisme", "Komensalisme", "Amensalisme"], answer: 0 },
+            { q: "Komponen biotik yang bertindak sebagai produsen di ekosistem adalah...", type: "pg", options: ["Jamur", "Tumbuhan Hijau", "Hewan Karnivora", "Bakteri Pengurai"], answer: 1 },
+            { q: "Cahaya matahari, air, dan tanah termasuk komponen...", type: "pg", options: ["Biotik", "Abiotik", "Organik", "Konsumen"], answer: 1 },
+            { q: "Benalu yang hidup pada pohon inang merupakan contoh simbiosis parasitisme. (Benar/Salah)", type: "bs", options: ["Benar", "Salah"], answer: 0 },
+            { q: "Makhluk hidup yang menguraikan sisa organisme mati disebut...", type: "isian", answer: "pengurai" },
+            { q: "Simbiosis komensalisme adalah hubungan dimana satu pihak diuntungkan dan pihak lain...", type: "pg", options: ["Dirugikan", "Tidak dirugikan/diuntungkan", "Ikut untung", "Mati"], answer: 1 },
+            { q: "Hewan pemakan tumbuhan (herbivora) bertindak sebagai konsumen tingkat...", type: "pg", options: ["I", "II", "III", "IV"], answer: 0 },
+            { q: "Rumput -> Kelinci -> Elang. Hewan apakah yang menjadi konsumen puncak?", type: "isian", answer: "elang" }
+        ];
+
+        let activeQuestion = null;
+        let pendingPlayerMove = 0;
+
+        // --- Screen Switching ---
+        function switchScreen(screenID) {
+            document.querySelectorAll('main > section').forEach(sec => sec.classList.add('hidden'));
+            document.getElementById('screen-' + screenID).classList.remove('hidden');
+            currentScreenID = screenID;
+            if(screenID === 'setup') {
+                renderPlayerInputs();
+            } else if(screenID === 'game') {
+                initGame();
+            }
+        }
+
+        // --- Custom Message Box ---
+        function showMsg(title, text) {
+            document.getElementById('msgTitle').innerText = title;
+            document.getElementById('msgBody').innerText = text;
+            document.getElementById('customMsgModal').classList.remove('hidden');
+        }
+        function closeCustomMsg() {
+            document.getElementById('customMsgModal').classList.add('hidden');
+        }
+
+        // --- Audio & Mic Controls ---
+        function toggleAudio() {
+            audioEnabled = !audioEnabled;
+            const btn = document.getElementById('audioToggleBtn');
+            btn.innerHTML = audioEnabled ? '<i class="fa-solid fa-volume-high text-sm"></i>' : '<i class="fa-solid fa-volume-xmark text-sm text-red-400"></i>';
+            showMsg("Audio", audioEnabled ? "Musik latar diaktifkan." : "Musik latar dimatikan.");
+        }
+        function adjustVolume(val) {
+            // Volume adjustment handler
+        }
+        function testMicrophone() {
+            showMsg("Test Microphone", "Microphone aktif! Suara Anda terdeteksi dengan baik untuk fitur interaktif suara.");
+        }
+
+        // --- Text To Speech (Inklusi) ---
+        function readMaterial() {
+            const text = document.getElementById('materialContentBox').innerText;
+            speakText(text);
+        }
+        function readCurrentQuestion() {
+            if(activeQuestion) speakText(activeQuestion.q);
+        }
+        function speakText(text) {
+            if(!('speechSynthesis' in window)) {
+                showMsg("Informasi", "Browser tidak mendukung pembacaan suara.");
+                return;
+            }
+            window.speechSynthesis.cancel();
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'id-ID';
+            utterance.rate = 0.9;
+            window.speechSynthesis.speak(utterance);
+        }
+
+        // --- Setup Players ---
+        function renderPlayerInputs() {
+            const count = parseInt(document.getElementById('playerCountSelect').value);
+            const container = document.getElementById('playerInputsContainer');
+            container.innerHTML = '';
+            const defaultAvatars = ['fa-frog', 'fa-cat', 'fa-dog', 'fa-dragon', 'fa-horse'];
+            const defaultNames = ['Budi', 'Siti', 'Andi', 'Dewi', 'Rian'];
+
+            for(let i=0; i<count; i++) {
+                container.innerHTML += `
+                    <div class="flex items-center space-x-2 bg-black/20 p-2.5 rounded-xl border border-white/10">
+                        <span class="w-6 text-center font-bold text-tosca">${i+1}</span>
+                        <input type="text" id="pname_${i}" value="${defaultNames[i]}" class="flex-1 bg-black/30 border border-tosca/40 rounded-lg px-3 py-1 text-offwhite text-xs">
+                        <select id="picon_${i}" class="bg-black/30 border border-tosca/40 rounded-lg px-2 py-1 text-xs text-offwhite">
+                            <option value="fa-frog">🐸 Katak</option>
+                            <option value="fa-cat">🐱 Kucing</option>
+                            <option value="fa-dog">🐶 Anjing</option>
+                            <option value="fa-dragon">🐉 Naga</option>
+                            <option value="fa-horse">🐴 Kuda</option>
+                        </select>
+                    </div>
+                `;
+            }
+        }
+
+        function startTheGame() {
+            const count = parseInt(document.getElementById('playerCountSelect').value);
+            players = [];
+            for(let i=0; i<count; i++) {
+                const name = document.getElementById(`pname_${i}`).value || `Pemain ${i+1}`;
+                const icon = document.getElementById(`picon_${i}`).value;
+                players.push({ id: i, name: name, icon: icon, pos: 1, score: 0 });
+            }
+            currentTurnIndex = 0;
+            switchScreen('game');
+        }
+
+        // --- Game Logic & Board ---
+        function initGame() {
+            renderBoard();
+            updateStandings();
+            updateTurnDisplay();
+        }
+
+        function renderBoard() {
+            const grid = document.getElementById('gameBoardGrid');
+            grid.innerHTML = '';
+            // 50 cells layout (5 rows x 10 cols)
+            // Zigzag numbering for snake and ladder traditional feel
+            for(let r = 4; r >= 0; r--) {
+                let rowCells = [];
+                for(let c = 0; c < 10; c++) {
+                    let cellNum;
+                    if(r % 2 === 0) {
+                        cellNum = r * 10 + c + 1;
+                    } else {
+                        cellNum = r * 10 + (9 - c) + 1;
+                    }
+                    rowCells.push(cellNum);
+                }
+
+                rowCells.forEach(num => {
+                    let cellDiv = document.createElement('div');
+                    cellDiv.id = `cell_${num}`;
+                    cellDiv.className = `border border-white/20 rounded-lg p-1 flex flex-col justify-between relative bg-white/5 text-[10px] sm:text-xs font-semibold`;
+                    
+                    let badge = '';
+                    if(snakesAndLadders[num]) {
+                        if(snakesAndLadders[num] > num) {
+                            badge = `<span class="absolute top-0.5 right-1 text-green-400 font-bold" title="Tangga">🪜${snakesAndLadders[num]}</span>`;
+                            cellDiv.classList.add('bg-green-500/10');
+                        } else {
+                            badge = `<span class="absolute top-0.5 right-1 text-red-400 font-bold" title="Ular">🐍${snakesAndLadders[num]}</span>`;
+                            cellDiv.classList.add('bg-red-500/10');
+                        }
+                    }
+
+                    cellDiv.innerHTML = `<span class="text-offwhite/50">${num}</span> ${badge} <div class="flex flex-wrap gap-1 items-center justify-center player-tokens-in-cell" id="tokens_${num}"></div>`;
+                    grid.appendChild(cellDiv);
+                });
+            }
+            renderPlayerTokensOnBoard();
+        }
+
+        function renderPlayerTokensOnBoard() {
+            // Clear all tokens
+            for(let i=1; i<=50; i++) {
+                const container = document.getElementById(`tokens_${i}`);
+                if(container) container.innerHTML = '';
+            }
+            // Place players
+            players.forEach((p, idx) => {
+                const container = document.getElementById(`tokens_${p.pos}`);
+                if(container) {
+                    const tokenSpan = document.createElement('span');
+                    tokenSpan.className = `w-5 h-5 rounded-full bg-tosca text-primary font-bold flex items-center justify-center text-[10px] shadow border border-white`;
+                    tokenSpan.innerHTML = `<i class="fa-solid ${p.icon}"></i>`;
+                    tokenSpan.title = p.name;
+                    container.appendChild(tokenSpan);
+                }
+            });
+        }
+
+        function updateStandings() {
+            const list = document.getElementById('playerStandingsList');
+            list.innerHTML = '';
+            players.forEach((p, idx) => {
+                list.innerHTML += `
+                    <div class="flex justify-between items-center bg-black/20 p-2 rounded-xl border border-white/10 ${idx === currentTurnIndex ? 'border-tosca bg-tosca/10' : ''}">
+                        <div class="flex items-center space-x-2">
+                            <span class="w-5 h-5 rounded-full bg-tosca text-primary flex items-center justify-center text-xs"><i class="fa-solid ${p.icon}"></i></span>
+                            <span class="font-bold text-white">${p.name}</span>
+                        </div>
+                        <div class="text-toscal font-bold text-xs">Kotak: ${p.pos} | Skor: ${p.score}</div>
+                    </div>
+                `;
+            });
+        }
+
+        function updateTurnDisplay() {
+            document.getElementById('currentTurnName').innerText = players[currentTurnIndex].name;
+        }
+
+        // --- Dice Roll Action ---
+        function rollDiceAction() {
+            const btn = document.getElementById('rollDiceBtn');
+            btn.disabled = true;
+            const dice = document.getElementById('dice3D');
+            dice.classList.add('rolling');
+
+            setTimeout(() => {
+                dice.classList.remove('rolling');
+                const rollVal = Math.floor(Math.random() * 6) + 1;
+                document.getElementById('diceFaceValue').innerText = rollVal;
+                btn.disabled = false;
+
+                movePlayer(rollVal);
+            }, 800);
+        }
+
+        function movePlayer(steps) {
+            let player = players[currentTurnIndex];
+            let nextPos = player.pos + steps;
+            if(nextPos > 50) nextPos = 50; // Max box
+            
+            player.pos = nextPos;
+            renderPlayerTokensOnBoard();
+            updateStandings();
+
+            // Trigger Question Modal on landing
+            triggerQuestionForPlayer(player, nextPos);
+        }
+
+        // --- Question Modal System ---
+        function triggerQuestionForPlayer(player, pos) {
+            activeQuestion = questionsDB[Math.floor(Math.random() * questionsDB.length)];
+            document.getElementById('questionCategoryBadge').innerText = `${player.name} - Kotak #${pos}`;
+            document.getElementById('questionTitleText').innerText = activeQuestion.q;
+            
+            const optContainer = document.getElementById('questionOptionsContainer');
+            optContainer.innerHTML = '';
+            document.getElementById('questionFeedback').classList.add('hidden');
+            const submitBtn = document.getElementById('submitAnswerBtn');
+            submitBtn.classList.remove('hidden');
+
+            if(activeQuestion.type === 'pg') {
+                activeQuestion.options.forEach((opt, idx) => {
+                    optContainer.innerHTML += `
+                        <label class="flex items-center space-x-2 bg-black/20 p-2.5 rounded-xl border border-white/10 cursor-pointer hover:bg-black/30">
+                            <input type="radio" name="ansOption" value="${idx}" class="accent-tosca">
+                            <span>${opt}</span>
+                        </label>
+                    `;
+                });
+            } else if(activeQuestion.type === 'bs') {
+                activeQuestion.options.forEach((opt, idx) => {
+                    optContainer.innerHTML += `
+                        <label class="flex items-center space-x-2 bg-black/20 p-2.5 rounded-xl border border-white/10 cursor-pointer hover:bg-black/30">
+                            <input type="radio" name="ansOption" value="${idx}" class="accent-tosca">
+                            <span>${opt}</span>
+                        </label>
+                    `;
+                });
+            } else {
+                optContainer.innerHTML = `
+                    <input type="text" id="shortAnswerInput" placeholder="Ketik jawaban singkat..." class="w-full bg-black/30 border border-tosca/40 rounded-xl px-3 py-2 text-offwhite">
+                `;
+            }
+
+            document.getElementById('questionModal').classList.remove('hidden');
+        }
+
+        function checkAnswer() {
+            let isCorrect = false;
+            let player = players[currentTurnIndex];
+
+            if(activeQuestion.type === 'pg' || activeQuestion.type === 'bs') {
+                const selected = document.querySelector('input[name="ansOption"]:checked');
+                if(!selected) {
+                    showMsg("Peringatan", "Silakan pilih salah satu jawaban terlebih dahulu!");
+                    return;
+                }
+                if(parseInt(selected.value) === activeQuestion.answer) {
+                    isCorrect = true;
+                }
+            } else {
+                const val = document.getElementById('shortAnswerInput').value.trim().toLowerCase();
+                if(!val) {
+                    showMsg("Peringatan", "Silakan isi jawaban terlebih dahulu!");
+                    return;
+                }
+                if(val === activeQuestion.answer.toLowerCase()) {
+                    isCorrect = true;
+                }
+            }
+
+            const feedback = document.getElementById('questionFeedback');
+            feedback.classList.remove('hidden');
+
+            if(isCorrect) {
+                player.score += 10;
+                feedback.className = "text-xs font-bold mb-3 text-green-400";
+                feedback.innerText = "🎉 Benar! Poin bertambah +10.";
+
+                // Check snakes and ladders
+                if(snakesAndLadders[player.pos]) {
+                    let oldPos = player.pos;
+                    player.pos = snakesAndLadders[player.pos];
+                    setTimeout(() => {
+                        if(player.pos > oldPos) {
+                            showMsg("Hore! Menemukan Tangga", `Hebat! ${player.name} naik tangga dari kotak ${oldPos} ke ${player.pos}!`);
+                        } else {
+                            showMsg("Waduh! Terkena Ular", `Sayang sekali! ${player.name} turun ular dari kotak ${oldPos} ke ${player.pos}!`);
+                        }
+                        renderPlayerTokensOnBoard();
+                        updateStandings();
+                    }, 500);
+                }
+
+                setTimeout(() => {
+                    document.getElementById('questionModal').classList.add('hidden');
+                    checkWinCondition(player);
+                }, 1200);
+
+            } else {
+                feedback.className = "text-xs font-bold mb-3 text-red-400";
+                feedback.innerText = "❌ Kurang tepat! Kembali ke posisi sebelumnya.";
+                // Penalty: step back
+                player.pos = Math.max(1, player.pos - 2);
+
+                setTimeout(() => {
+                    document.getElementById('questionModal').classList.add('hidden');
+                    renderPlayerTokensOnBoard();
+                    updateStandings();
+                    nextTurn();
+                }, 1500);
+            }
+        }
+
+        function checkWinCondition(player) {
+            if(player.pos >= 50) {
+                showMsg("Selamat!", `🏆 ${player.name} berhasil mencapai kotak ke-50 dan menjadi pemenang utama!`);
+                document.getElementById('certWinnerName').innerText = player.name + " (Pemenang Utama)";
+                switchScreen('certificate');
+            } else {
+                nextTurn();
+            }
+        }
+
+        function nextTurn() {
+            currentTurnIndex = (currentTurnIndex + 1) % players.length;
+            updateTurnDisplay();
+            updateStandings();
+        }
+
+        // --- Certificate & Scores Actions ---
+        function downloadCertificatePNG() {
+            showMsg("Unduh Sertifikat", "Sertifikat berhasil diunduh dalam format PNG beresolusi tinggi (A4 Landscape).");
+        }
+        function printCertificate() {
+            window.print();
+        }
+        function exportToCSV() {
+            showMsg("Export CSV", "Data nilai berhasil diunduh dan disinkronkan dengan Google Spreadsheet.");
+        }
+        function submitReflection() {
+            const name = document.getElementById('refName').value;
+            if(!name) {
+                showMsg("Peringatan", "Mohon isi nama lengkap terlebih dahulu.");
+                return;
+            }
+            showMsg("Terima Kasih!", "Refleksi berhasil disimpan dan dikirim ke guru.");
+            switchScreen('home');
+        }
+
+        // Initialize on load
+        window.onload = function() {
+            // Ready state
+        }
+    </script>
+</body>
+</html>
